@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARSOF Demo Avanzado - Sistema de Gestión Integral</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SweetAlert2 for alerts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+  
+  <style>
+    :root {
+      --primary-color: #0056b3;
+      --secondary-color: #0277bd;
+      --success-color: #198754;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --info-color: #0dcaf0;
+      --light-bg: #f8f9fa;
+      --dark-bg: #212529;
+    }
+
+    body { 
+      background-color: var(--light-bg); 
+      transition: all 0.3s ease; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .dark-mode {
+      --light-bg: #1a1a1a;
+      --primary-color: #4dabf7;
+      --secondary-color: #339af0;
+    }
+    
+    .dark-mode body { 
+      background-color: var(--dark-bg); 
+      color: #e9ecef; 
+    }
+    
+    .banner { 
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff; 
+      padding: 1.5rem; 
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar { 
+      background: linear-gradient(180deg, var(--secondary-color), #01579b);
+      color: #fff; 
+      min-height: calc(100vh - 180px); 
+      padding-top: 1rem; 
+      transition: all 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .dark-mode .sidebar { 
+      background: linear-gradient(180deg, #01314d, #012a3f); 
+    }
+    
+    .sidebar a { 
+      color: #fff; 
+      padding: 1rem 1.25rem; 
+      display: flex;
+      align-items: center;
+      text-decoration: none; 
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+    
+    .sidebar a:hover, .sidebar a.active { 
+      background-color: rgba(255,255,255,0.1); 
+      border-left-color: #fff;
+      transform: translateX(5px);
+    }
+    
+    .sidebar a i {
+      margin-right: 0.75rem;
+      width: 20px;
+    }
+    
+    .topbar { 
+      background-color: #fff; 
+      border-bottom: 1px solid #dee2e6; 
+      padding: 1rem; 
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .dark-mode .topbar { 
+      background-color: #2d3748; 
+      border-color: #4a5568; 
+    }
+    
+    .content-pane { 
+      display: none !important; 
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    .content-pane.active { 
+      display: block !important; 
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card-modern, .info-box {
+      background: #fff; 
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border: none;
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-modern:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .dark-mode .card-modern, .dark-mode .info-box { 
+      background: #2d3748; 
+      color: #e2e8f0; 
+    }
+    
+    .metric-card {
+      text-align: center;
+      padding: 2rem;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+      transform: scale(1.05);
+    }
+    
+    .metric-card.success {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .metric-card.warning {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .metric-card.info {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .provider-card {
+      border-radius: 12px;
+      padding: 1.5rem;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .provider-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .dark-mode .provider-card {
+      background: #2d3748;
+      color: #e2e8f0;
+    }
+    
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-respondidas {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-pendientes {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-urgentes {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .status-negociacion {
+      background: #cce7ff;
+      color: #004085;
+    }
+    
+    .btn-modern {
+      border-radius: 25px;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-modern:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .notification-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+      max-width: 350px;
+    }
+    
+    .notification {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--primary-color);
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .advanced-table {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .footer-modern {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .floating-action {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+    }
+    
+    .floating-action .btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .floating-action .btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .kanban-column {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 500px;
+      margin-bottom: 1rem;
+    }
+    
+    .dark-mode .kanban-column {
+      background: #2d3748;
+    }
+    
+    .kanban-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: grab;
+      transition: all 0.3s ease;
+    }
+    
+    .kanban-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .dark-mode .kanban-card {
+      background: #4a5568;
+      color: #e2e8f0;
+    }
+    
+    .progress-ring {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto;
+    }
+    
+    .stats-table {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    
+    .stats-table table {
+      margin-bottom: 0;
+    }
+    
+    .stats-table th {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      padding: 1rem;
+    }
+    
+    .stats-table td {
+      text-align: center;
+      padding: 1rem;
+      font-weight: 500;
+    }
+    
+    .progress-bar-custom {
+      height: 8px;
+      border-radius: 4px;
+      background: #e9ecef;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .modal-lg-custom {
+      max-width: 800px;
+    }
+    
+    .form-floating label {
+      color: #6c757d;
+    }
+    
+    .btn-action {
+      padding: 0.375rem 0.75rem;
+      margin: 0 0.125rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Notification Panel -->
+  <div id="notificationPanel" class="notification-panel"></div>
+
+  <!-- Banner -->
+  <div class="banner">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1><i class="bi bi-cpu"></i> ARSOF SOFTWARE</h1>
+          <p class="mb-0">Plataforma Integral de Gestión y Cotizaciones - Sector Salud</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex justify-content-end align-items-center">
+            <span class="badge bg-success me-2">Online</span>
+            <span class="badge bg-info">v2.1.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-2 sidebar">
+        <div class="text-center mb-4">
+          <h5><i class="bi bi-hospital"></i> ARSOF</h5>
+          <small class="text-light">Sistema Integral</small>
+        </div>
+        <div id="menuLinks">
+          <a href="javascript:void(0)" data-target="dashboard" class="active">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+          <a href="javascript:void(0)" data-target="cotizaciones">
+            <i class="bi bi-file-earmark-text"></i> Cotizaciones
+          </a>
+          <a href="javascript:void(0)" data-target="proveedores">
+            <i class="bi bi-building"></i> Proveedores
+          </a>
+          <a href="javascript:void(0)" data-target="inventario">
+            <i class="bi bi-boxes"></i> Inventario
+          </a>
+          <a href="javascript:void(0)" data-target="ordenes">
+            <i class="bi bi-cart-check"></i> Órdenes
+          </a>
+          <a href="javascript:void(0)" data-target="analytics">
+            <i class="bi bi-graph-up"></i> Analytics
+          </a>
+          <a href="javascript:void(0)" data-target="reportes">
+            <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+          </a>
+          <a href="javascript:void(0)" data-target="configuracion">
+            <i class="bi bi-gear"></i> Configuración
+          </a>
+          <a href="javascript:void(0)" data-target="usuarios">
+            <i class="bi bi-people"></i> Usuarios
+          </a>
+          <a href="javascript:void(0)" data-target="auditoria">
+            <i class="bi bi-shield-check"></i> Auditoría
+          </a>
+          <a href="javascript:void(0)" data-target="integraciones">
+            <i class="bi bi-plug"></i> Integraciones
+          </a>
+          <a href="javascript:void(0)" data-target="soporte">
+            <i class="bi bi-life-preserver"></i> Soporte
+          </a>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-10 px-0">
+        <!-- Top bar -->
+        <div class="topbar">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleFilters()">
+                  <i class="bi bi-funnel"></i> Filtros
+                </button>
+                <div class="input-group" style="max-width: 400px;">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" id="globalSearch" class="form-control" placeholder="Buscar en todo el sistema...">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex justify-content-end align-items-center">
+                <div class="dropdown me-2">
+                  <button class="btn btn-outline-info btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-bell"></i> <span id="notificationCount" class="badge bg-danger">3</span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Notificaciones</h6></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-exclamation-triangle text-warning"></i> Cotización urgente venciendo</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle text-success"></i> Nuevo proveedor registrado</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle text-info"></i> Actualización del sistema</a></li>
+                  </ul>
+                </div>
+                <button id="toggleDark" class="btn btn-outline-dark btn-sm me-2">
+                  <i class="bi bi-moon"></i>
+                </button>
+                <button id="viewCartBtn" class="btn btn-outline-success btn-sm me-2">
+                  <i class="bi bi-cart3"></i> (<span id="cartCount">0</span>)
+                </button>
+                <div class="dropdown">
+                  <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> Admin
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Configuración</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="contentArea" class="p-4">
+          <!-- Dashboard -->
+          <section id="dashboard" class="content-pane active">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-speedometer2"></i> Dashboard Ejecutivo</h2>
+              <div>
+                <button class="btn btn-modern btn-primary btn-sm me-2" onclick="refreshDashboard()">
+                  <i class="bi bi-arrow-clockwise"></i> Actualizar
+                </button>
+                <button class="btn btn-modern btn-outline-secondary btn-sm" onclick="exportDashboard()">
+                  <i class="bi bi-download"></i> Exportar
+                </button>
+              </div>
+            </div>
+
+            <!-- Métricas Principales -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="metric-card">
+                  <i class="bi bi-file-earmark-text display-4 mb-2"></i>
+                  <h3 id="totalCotizaciones">127</h3>
+                  <p>Cotizaciones Activas</p>
+                  <small class="badge bg-light text-dark">+12% vs mes anterior</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card success">
+                  <i class="bi bi-check-circle display-4 mb-2"></i>
+                  <h3 id="cotizacionesAprobadas">89</h3>
+                  <p>Aprobadas</p>
+                  <small class="badge bg-light text-dark">70% tasa éxito</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card warning">
+                  <i class="bi bi-clock display-4 mb-2"></i>
+                  <h3 id="cotizacionesPendientes">25</h3>
+                  <p>Pendientes</p>
+                  <small class="badge bg-light text-dark">-5% vs mes anterior</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card info">
+                  <i class="bi bi-currency-dollar display-4 mb-2"></i>
+                  <h3 id="valorTotal">$2.4M</h3>
+                  <p>Valor Total</p>
+                  <small class="badge bg-light text-dark">+18% vs mes anterior</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gráficos reemplazados por tablas estadísticas -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-pie-chart"></i> Distribución por Estado</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Estado</th>
+                          <th>Cantidad</th>
+                          <th>Porcentaje</th>
+                          <th>Progreso</th>
+                        </tr>
+                      </thead>
+                      <tbody id="estadosDistribucion">
+                        <tr>
+                          <td><span class="badge bg-success">Aprobadas</span></td>
+                          <td>45</td>
+                          <td>45%</td>
+                          <td>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-success" style="width: 45%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><span class="badge bg-warning">Pendientes</span></td>
+                          <td>25</td>
+                          <td>25%</td>
+                          <td>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-warning" style="width: 25%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><span class="badge bg-info">En Proceso</span></td>
+                          <td>20</td>
+                          <td>20%</td>
+                          <td>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-info" style="width: 20%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><span class="badge bg-danger">Rechazadas</span></td>
+                          <td>10</td>
+                          <td>10%</td>
+                          <td>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-danger" style="width: 10%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-bar-chart"></i> Tiempo de Respuesta por Día</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Día</th>
+                          <th>Promedio (hrs)</th>
+                          <th>Tendencia</th>
+                          <th>Meta (≤5hrs)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tiemposRespuesta">
+                        <tr>
+                          <td>Lunes</td>
+                          <td>4.2</td>
+                          <td><i class="bi bi-arrow-down text-success"></i></td>
+                          <td><i class="bi bi-check-circle text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td>Martes</td>
+                          <td>3.8</td>
+                          <td><i class="bi bi-arrow-down text-success"></i></td>
+                          <td><i class="bi bi-check-circle text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td>Miércoles</td>
+                          <td>5.1</td>
+                          <td><i class="bi bi-arrow-up text-warning"></i></td>
+                          <td><i class="bi bi-x-circle text-warning"></i></td>
+                        </tr>
+                        <tr>
+                          <td>Jueves</td>
+                          <td>2.9</td>
+                          <td><i class="bi bi-arrow-down text-success"></i></td>
+                          <td><i class="bi bi-check-circle text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td>Viernes</td>
+                          <td>4.7</td>
+                          <td><i class="bi bi-arrow-up text-info"></i></td>
+                          <td><i class="bi bi-check-circle text-success"></i></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-8">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-graph-up"></i> Tendencia Mensual</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Mes</th>
+                          <th>Cotizaciones</th>
+                          <th>Órdenes</th>
+                          <th>Tasa Conversión</th>
+                          <th>Valor Total</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tendenciaMensual">
+                        <tr>
+                          <td>Enero</td>
+                          <td>65</td>
+                          <td>45</td>
+                          <td>69.2%</td>
+                          <td>$450,000</td>
+                        </tr>
+                        <tr>
+                          <td>Febrero</td>
+                          <td>59</td>
+                          <td>49</td>
+                          <td>83.1%</td>
+                          <td>$520,000</td>
+                        </tr>
+                        <tr>
+                          <td>Marzo</td>
+                          <td>80</td>
+                          <td>60</td>
+                          <td>75.0%</td>
+                          <td>$680,000</td>
+                        </tr>
+                        <tr>
+                          <td>Abril</td>
+                          <td>81</td>
+                          <td>61</td>
+                          <td>75.3%</td>
+                          <td>$720,000</td>
+                        </tr>
+                        <tr>
+                          <td>Mayo</td>
+                          <td>56</td>
+                          <td>36</td>
+                          <td>64.3%</td>
+                          <td>$380,000</td>
+                        </tr>
+                        <tr class="table-success">
+                          <td><strong>Junio</strong></td>
+                          <td><strong>55</strong></td>
+                          <td><strong>35</strong></td>
+                          <td><strong>63.6%</strong></td>
+                          <td><strong>$420,000</strong></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-pie-chart-fill"></i> Top Categorías</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Categoría</th>
+                          <th>%</th>
+                        </tr>
+                      </thead>
+                      <tbody id="topCategorias">
+                        <tr>
+                          <td>Medicamentos</td>
+                          <td>
+                            <span class="badge bg-primary">35%</span>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-primary" style="width: 35%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Insumos</td>
+                          <td>
+                            <span class="badge bg-info">25%</span>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-info" style="width: 25%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Equipos</td>
+                          <td>
+                            <span class="badge bg-warning">20%</span>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-warning" style="width: 20%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Materiales</td>
+                          <td>
+                            <span class="badge bg-success">15%</span>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-success" style="width: 15%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Descartables</td>
+                          <td>
+                            <span class="badge bg-secondary">5%</span>
+                            <div class="progress-bar-custom">
+                              <div class="progress-fill bg-secondary" style="width: 5%"></div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actividad Reciente -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-clock-history"></i> Actividad Reciente</h5>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Hora</th>
+                          <th>Usuario</th>
+                          <th>Acción</th>
+                          <th>Descripción</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody id="actividadReciente"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Cotizaciones -->
+          <section id="cotizaciones" class="content-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-file-earmark-text"></i> Gestión de Cotizaciones</h2>
+              <div>
+                <button class="btn btn-modern btn-success" onclick="nuevaCotizacion()">
+                  <i class="bi bi-plus-circle"></i> Nueva Cotización
+                </button>
+                <button class="btn btn-modern btn-outline-primary" onclick="importarCotizaciones()">
+                  <i class="bi bi-upload"></i> Importar
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtros Avanzados -->
+            <div class="filter-panel">
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label">Estado</label>
+                  <select class="form-select" id="filtroEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En Proceso">En Proceso</option>
+                    <option value="Aprobada">Aprobada</option>
+                    <option value="Rechazada">Rechazada</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Proveedor</label>
+                  <select class="form-select" id="filtroProveedor">
+                    <option value="">Todos los proveedores</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Desde</label>
+                  <input type="date" class="form-control" id="filtroFechaDesde">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Hasta</label>
+                  <input type="date" class="form-control" id="filtroFechaHasta">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">&nbsp;</label>
+                  <button class="btn btn-modern btn-primary w-100" onclick="aplicarFiltros()">
+                    <i class="bi bi-search"></i> Filtrar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vista Kanban -->
+            <div class="row" id="kanbanBoard">
+              <div class="col-md-3">
+                <div class="kanban-column">
+                  <h6 class="text-center mb-3"><i class="bi bi-clock"></i> Pendientes</h6>
+                  <div id="pendientes-column"></div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="kanban-column">
+                  <h6 class="text-center mb-3"><i class="bi bi-gear"></i> En Proceso</h6>
+                  <div id="proceso-column"></div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="kanban-column">
+                  <h6 class="text-center mb-3"><i class="bi bi-check-circle"></i> Aprobadas</h6>
+                  <div id="aprobadas-column"></div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="kanban-column">
+                  <h6 class="text-center mb-3"><i class="bi bi-x-circle"></i> Rechazadas</h6>
+                  <div id="rechazadas-column"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Proveedores -->
+          <section id="proveedores" class="content-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-building"></i> Red de Proveedores</h2>
+              <div>
+                <button class="btn btn-modern btn-success" onclick="nuevoProveedor()">
+                  <i class="bi bi-plus-circle"></i> Nuevo Proveedor
+                </button>
+                <button class="btn btn-modern btn-outline-info" onclick="evaluarProveedores()">
+                  <i class="bi bi-star"></i> Evaluación
+                </button>
+              </div>
+            </div>
+
+            <div class="row" id="proveedoresList"></div>
+          </section>
+
+          <!-- Inventario -->
+          <section id="inventario" class="content-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-boxes"></i> Gestión de Inventario</h2>
+              <div>
+                <button class="btn btn-modern btn-warning" onclick="alertasStock()">
+                  <i class="bi bi-exclamation-triangle"></i> Alertas
+                </button>
+                <button class="btn btn-modern btn-info" onclick="planificarDemanda()">
+                  <i class="bi bi-graph-up"></i> Planificar
+                </button>
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="card-modern p-3 text-center">
+                  <i class="bi bi-box display-3 text-primary"></i>
+                  <h4 class="mt-2">1,247</h4>
+                  <p>Total Productos</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card-modern p-3 text-center">
+                  <i class="bi bi-exclamation-triangle display-3 text-warning"></i>
+                  <h4 class="mt-2">23</h4>
+                  <p>Stock Bajo</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card-modern p-3 text-center">
+                  <i class="bi bi-arrow-clockwise display-3 text-info"></i>
+                  <h4 class="mt-2">156</h4>
+                  <p>Rotación Alta</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-modern p-3">
+              <div class="table-responsive">
+                <table id="inventarioTable" class="table table-hover advanced-table">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Producto</th>
+                      <th>Categoría</th>
+                      <th>Stock Actual</th>
+                      <th>Stock Mínimo</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventarioBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Órdenes -->
+          <section id="ordenes" class="content-pane">
+            <h2><i class="bi bi-cart-check"></i> Gestión de Órdenes</h2>
+            <div class="card-modern p-3">
+              <div class="table-responsive">
+                <table id="ordenesTable" class="table table-hover advanced-table">
+                  <thead>
+                    <tr>
+                      <th>Número</th>
+                      <th>Fecha</th>
+                      <th>Proveedor</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                      <th>Entrega</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordenesBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Analytics -->
+          <section id="analytics" class="content-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-graph-up"></i> Analytics Avanzado</h2>
+              <div>
+                <button class="btn btn-modern btn-primary btn-sm" onclick="actualizarAnalytics()">
+                  <i class="bi bi-arrow-clockwise"></i> Actualizar
+                </button>
+                <button class="btn btn-modern btn-outline-secondary btn-sm" onclick="exportarAnalytics()">
+                  <i class="bi bi-download"></i> Exportar
+                </button>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-speedometer2"></i> Análisis de Rendimiento</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Métrica</th>
+                          <th>Actual</th>
+                          <th>Meta</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Tiempo Resp. Promedio</td>
+                          <td>4.1 hrs</td>
+                          <td>≤ 5 hrs</td>
+                          <td><span class="badge bg-success">Cumple</span></td>
+                        </tr>
+                        <tr>
+                          <td>Tasa de Aprobación</td>
+                          <td>75.5%</td>
+                          <td>≥ 70%</td>
+                          <td><span class="badge bg-success">Cumple</span></td>
+                        </tr>
+                        <tr>
+                          <td>Satisfacción Cliente</td>
+                          <td>4.2/5</td>
+                          <td>≥ 4.0/5</td>
+                          <td><span class="badge bg-success">Cumple</span></td>
+                        </tr>
+                        <tr>
+                          <td>Tiempo Entrega</td>
+                          <td>6.8 días</td>
+                          <td>≤ 7 días</td>
+                          <td><span class="badge bg-success">Cumple</span></td>
+                        </tr>
+                        <tr>
+                          <td>Rotación Inventario</td>
+                          <td>8.5x/año</td>
+                          <td>≥ 8x/año</td>
+                          <td><span class="badge bg-success">Cumple</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-graph-down"></i> Predicción de Demanda</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Producto</th>
+                          <th>Demanda Prev.</th>
+                          <th>Stock Actual</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Jeringa 10ml</td>
+                          <td>500 unid</td>
+                          <td>750 unid</td>
+                          <td><span class="badge bg-success">OK</span></td>
+                        </tr>
+                        <tr>
+                          <td>Mascarilla N95</td>
+                          <td>1200 unid</td>
+                          <td>800 unid</td>
+                          <td><span class="badge bg-warning">Reabastecer</span></td>
+                        </tr>
+                        <tr>
+                          <td>Guantes Latex</td>
+                          <td>2000 unid</td>
+                          <td>500 unid</td>
+                          <td><span class="badge bg-danger">Urgente</span></td>
+                        </tr>
+                        <tr>
+                          <td>Alcohol Gel</td>
+                          <td>150 lts</td>
+                          <td>200 lts</td>
+                          <td><span class="badge bg-success">OK</span></td>
+                        </tr>
+                        <tr>
+                          <td>Gasa Estéril</td>
+                          <td>300 unid</td>
+                          <td>100 unid</td>
+                          <td><span class="badge bg-warning">Reabastecer</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-bar-chart-line"></i> Análisis Comparativo por Proveedor</h5>
+                  <div class="stats-table">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Proveedor</th>
+                          <th>Cotizaciones</th>
+                          <th>Tiempo Resp.</th>
+                          <th>Tasa Aprobación</th>
+                          <th>Precio Promedio</th>
+                          <th>Rating</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody id="analisisProveedores"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Reportes -->
+          <section id="reportes" class="content-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="bi bi-file-earmark-bar-graph"></i> Centro de Reportes</h2>
+              <button class="btn btn-modern btn-success" onclick="generarReportePersonalizado()">
+                <i class="bi bi-plus-circle"></i> Nuevo Reporte
+              </button>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-file-earmark-check"></i> Reportes Predefinidos</h5>
+                  <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action" onclick="generarReporte('ejecutivo')">
+                      <i class="bi bi-file-earmark-pdf text-danger"></i> Resumen Ejecutivo
+                      <small class="text-muted d-block">Métricas principales del mes</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="generarReporte('proveedores')">
+                      <i class="bi bi-file-earmark-excel text-success"></i> Análisis de Proveedores
+                      <small class="text-muted d-block">Evaluación y comparativa</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="generarReporte('inventario')">
+                      <i class="bi bi-file-earmark-text text-primary"></i> Control de Inventario
+                      <small class="text-muted d-block">Stock y movimientos</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="generarReporte('cotizaciones')">
+                      <i class="bi bi-file-earmark-bar-graph text-info"></i> Reporte de Cotizaciones
+                      <small class="text-muted d-block">Estado y tendencias</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="generarReporte('financiero')">
+                      <i class="bi bi-currency-dollar text-warning"></i> Análisis Financiero
+                      <small class="text-muted d-block">Costos y ahorros</small>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-gear"></i> Generador de Reportes Personalizado</h5>
+                  <form id="formReportePersonalizado">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                          <select class="form-select" id="tipoReporte">
+                            <option value="cotizaciones">Cotizaciones</option>
+                            <option value="proveedores">Proveedores</option>
+                            <option value="inventario">Inventario</option>
+                            <option value="ordenes">Órdenes</option>
+                            <option value="financiero">Financiero</option>
+                          </select>
+                          <label>Tipo de Reporte</label>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                          <select class="form-select" id="formatoReporte">
+                            <option value="excel">Excel (.xlsx)</option>
+                            <option value="pdf">PDF</option>
+                            <option value="csv">CSV</option>
+                          </select>
+                          <label>Formato</label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                          <input type="date" class="form-control" id="fechaDesde">
+                          <label>Fecha Desde</label>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                          <input type="date" class="form-control" id="fechaHasta">
+                          <label>Fecha Hasta</label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="form-label">Filtros Adicionales:</label>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="incluirPendientes" checked>
+                        <label class="form-check-label" for="incluirPendientes">Incluir pendientes</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="incluirAprobadas" checked>
+                        <label class="form-check-label" for="incluirAprobadas">Incluir aprobadas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="incluirRechazadas">
+                        <label class="form-check-label" for="incluirRechazadas">Incluir rechazadas</label>
+                      </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                      <button type="button" class="btn btn-modern btn-primary" onclick="generarReportePersonalizado()">
+                        <i class="bi bi-download"></i> Generar Reporte
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <div class="card-modern p-3">
+                  <h5><i class="bi bi-clock-history"></i> Historial de Reportes</h5>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Nombre</th>
+                          <th>Tipo</th>
+                          <th>Usuario</th>
+                          <th>Estado</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody id="historialReportes"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Otras secciones simplificadas para mantener el código manejable -->
+          <section id="configuracion" class="content-pane">
+            <h2><i class="bi bi-gear"></i> Configuración del Sistema</h2>
+            <div class="card-modern p-3">
+              <p>Panel de configuración del sistema...</p>
+            </div>
+          </section>
+
+          <section id="usuarios" class="content-pane">
+            <h2><i class="bi bi-people"></i> Gestión de Usuarios</h2>
+            <div class="card-modern p-3">
+              <p>Gestión de usuarios y permisos...</p>
+            </div>
+          </section>
+
+          <section id="auditoria" class="content-pane">
+            <h2><i class="bi bi-shield-check"></i> Auditoría y Seguridad</h2>
+            <div class="card-modern p-3">
+              <p>Registro de auditoría y seguridad...</p>
+            </div>
+          </section>
+
+          <section id="integraciones" class="content-pane">
+            <h2><i class="bi bi-plug"></i> Integraciones</h2>
+            <div class="card-modern p-3">
+              <p>Configuración de integraciones con sistemas externos...</p>
+            </div>
+          </section>
+
+          <section id="soporte" class="content-pane">
+            <h2><i class="bi bi-life-preserver"></i> Centro de Soporte</h2>
+            <div class="card-modern p-3">
+              <p>Centro de ayuda y soporte técnico...</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-modern">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2025 ARSOF SOFTWARE - Todos los derechos reservados</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <p>www.arsof.com.ar | Versión 2.1.0</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-action">
+    <button class="btn btn-success" onclick="sendWhatsApp()" title="WhatsApp">
+      <i class="bi bi-whatsapp"></i>
+    </button>
+    <button class="btn btn-primary" onclick="sendEmail()" title="Email">
+      <i class="bi bi-envelope"></i>
+    </button>
+    <button class="btn btn-info" onclick="scrollToTop()" title="Ir arriba">
+      <i class="bi bi-arrow-up"></i>
+    </button>
+  </div>
+
+  <!-- Modales -->
+  
+  <!-- Modal Carrito -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-cart3"></i> Carrito de Compras</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="cartBody">
+          No hay productos en el carrito.
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button class="btn btn-success" onclick="confirmarPedido()">Confirmar Pedido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Cotización -->
+  <div class="modal fade" id="nuevaCotizacionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg-custom">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nueva Cotización</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formNuevaCotizacion">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="cotTitulo" placeholder="Título">
+                  <label>Título de la Cotización</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="cotProveedor">
+                    <option value="">Seleccionar proveedor...</option>
+                  </select>
+                  <label>Proveedor</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="cotProducto" placeholder="Producto">
+                  <label>Producto</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control" id="cotCantidad" placeholder="Cantidad">
+                  <label>Cantidad</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="date" class="form-control" id="cotVencimiento">
+                  <label>Fecha Vencimiento</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-floating mb-3">
+              <textarea class="form-control" id="cotDescripcion" style="height: 100px" placeholder="Descripción"></textarea>
+              <label>Descripción / Observaciones</label>
+            </div>
+            
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="cotUrgente">
+              <label class="form-check-label" for="cotUrgente">
+                Marcar como urgente
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success" onclick="guardarCotizacion()">
+            <i class="bi bi-check-circle"></i> Crear Cotización
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Proveedor -->
+  <div class="modal fade" id="nuevoProveedorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg-custom">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-building"></i> Nuevo Proveedor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formNuevoProveedor">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="provNombre" placeholder="Nombre">
+                  <label>Nombre de la Empresa</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="provCategoria">
+                    <option value="">Seleccionar categoría...</option>
+                    <option value="Medicamentos">Medicamentos</option>
+                    <option value="Insumos">Insumos Médicos</option>
+                    <option value="Equipos">Equipos</option>
+                    <option value="Materiales">Materiales</option>
+                  </select>
+                  <label>Categoría Principal</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="email" class="form-control" id="provEmail" placeholder="Email">
+                  <label>Email de Contacto</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="tel" class="form-control" id="provTelefono" placeholder="Teléfono">
+                  <label>Teléfono</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-8">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="provDireccion" placeholder="Dirección">
+                  <label>Dirección</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="provCiudad" placeholder="Ciudad">
+                  <label>Ciudad</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="provCuit" placeholder="CUIT">
+                  <label>CUIT</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="provCertificaciones">
+                    <option value="">Certificaciones...</option>
+                    <option value="ISO 9001">ISO 9001</option>
+                    <option value="ANMAT">ANMAT</option>
+                    <option value="FDA">FDA</option>
+                    <option value="CE">CE</option>
+                  </select>
+                  <label>Certificaciones</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success" onclick="guardarProveedor()">
+            <i class="bi bi-check-circle"></i> Registrar Proveedor
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalles Proveedor -->
+  <div class="modal fade" id="detallesProveedorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-building"></i> Detalles del Proveedor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="detallesProveedorBody">
+          <!-- Contenido dinámico -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="editarProveedor()">
+            <i class="bi bi-pencil"></i> Editar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Datos ficticios más completos
+    const proveedores = [];
+    const cotizaciones = [];
+    const inventario = [];
+    const ordenes = [];
+    const actividades = [];
+
+    // Generar datos ficticios
+    function generarDatosFicticios() {
+      // Proveedores
+      for(let i = 1; i <= 20; i++) {
+        proveedores.push({
+          id: i,
+          nombre: `Proveedor Médico ${i}`,
+          categoria: ['Medicamentos', 'Insumos', 'Equipos', 'Materiales'][i % 4],
+          ubicacion: `Ciudad ${i}`,
+          rating: (Math.random() * 2 + 3).toFixed(1),
+          certificaciones: ['ISO 9001', 'ANMAT', 'FDA'][Math.floor(Math.random() * 3)],
+          tiempoEntrega: Math.floor(Math.random() * 10 + 1),
+          estado: Math.random() > 0.1 ? 'Activo' : 'Inactivo'
+        });
+      }
+
+      // Cotizaciones
+      const estados = ['Pendiente', 'En Proceso', 'Aprobada', 'Rechazada'];
+      for(let i = 1; i <= 50; i++) {
+        cotizaciones.push({
+          id: `COT-${2025}${String(i).padStart(4, '0')}`,
+          fecha: new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
+          proveedor: proveedores[Math.floor(Math.random() * proveedores.length)].nombre,
+          producto: `Producto Médico ${i}`,
+          cantidad: Math.floor(Math.random() * 1000) + 100,
+          precio: (Math.random() * 10000 + 1000).toFixed(2),
+          estado: estados[Math.floor(Math.random() * estados.length)],
+          urgente: Math.random() > 0.8,
+          vencimiento: new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
+        });
+      }
+
+      // Inventario
+      for(let i = 1; i <= 100; i++) {
+        const stockActual = Math.floor(Math.random() * 1000);
+        const stockMinimo = Math.floor(Math.random() * 100) + 50;
+        inventario.push({
+          codigo: `PROD-${String(i).padStart(5, '0')}`,
+          nombre: `Producto Médico ${i}`,
+          categoria: ['Medicamentos', 'Insumos', 'Equipos', 'Materiales', 'Descartables'][i % 5],
+          stockActual: stockActual,
+          stockMinimo: stockMinimo,
+          precio: (Math.random() * 500 + 10).toFixed(2),
+          estado: stockActual < stockMinimo ? 'Stock Bajo' : stockActual < stockMinimo * 2 ? 'Revisar' : 'OK',
+          proveedor: proveedores[Math.floor(Math.random() * proveedores.length)].nombre
+        });
+      }
+
+      // Órdenes
+      for(let i = 1; i <= 30; i++) {
+        ordenes.push({
+          numero: `ORD-${2025}${String(i).padStart(4, '0')}`,
+          fecha: new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
+          proveedor: proveedores[Math.floor(Math.random() * proveedores.length)].nombre,
+          total: (Math.random() * 50000 + 5000).toFixed(2),
+          estado: ['Pendiente', 'Procesando', 'Enviado', 'Entregado', 'Cancelado'][Math.floor(Math.random() * 5)],
+          entrega: new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
+        });
+      }
+
+      // Actividades recientes
+      const acciones = ['Creó cotización', 'Aprobó orden', 'Actualizó inventario', 'Registró proveedor', 'Generó reporte'];
+      for(let i = 1; i <= 20; i++) {
+        actividades.push({
+          hora: new Date(Date.now() - Math.random() * 86400000 * 7).toLocaleTimeString(),
+          usuario: `Usuario ${Math.floor(Math.random() * 10) + 1}`,
+          accion: acciones[Math.floor(Math.random() * acciones.length)],
+          descripcion: `Descripción de la actividad ${i}`,
+          estado: ['Completado', 'En Proceso', 'Pendiente'][Math.floor(Math.random() * 3)]
+        });
+      }
+    }
+
+    // Renderizado de componentes
+    function renderDashboard() {
+      // Las tablas ya están renderizadas en HTML, solo actualizamos datos dinámicos
+      actualizarMetricas();
+      renderActividadReciente();
+    }
+
+    function actualizarMetricas() {
+      // Actualizar métricas principales
+      const totalCot = cotizaciones.length;
+      const aprobadas = cotizaciones.filter(c => c.estado === 'Aprobada').length;
+      const pendientes = cotizaciones.filter(c => c.estado === 'Pendiente').length;
+      const valorTotal = cotizaciones.reduce((sum, c) => sum + parseFloat(c.precio), 0);
+
+      const totalElement = document.getElementById('totalCotizaciones');
+      const aprobadasElement = document.getElementById('cotizacionesAprobadas');
+      const pendientesElement = document.getElementById('cotizacionesPendientes');
+      const valorElement = document.getElementById('valorTotal');
+      
+      if (totalElement) totalElement.textContent = totalCot;
+      if (aprobadasElement) aprobadasElement.textContent = aprobadas;
+      if (pendientesElement) pendientesElement.textContent = pendientes;
+      if (valorElement) valorElement.textContent = `$${(valorTotal / 1000000).toFixed(1)}M`;
+
+      // Actualizar distribución por estado
+      const distribucion = [
+        { estado: 'Aprobadas', cantidad: aprobadas, color: 'success' },
+        { estado: 'Pendientes', cantidad: pendientes, color: 'warning' },
+        { estado: 'En Proceso', cantidad: cotizaciones.filter(c => c.estado === 'En Proceso').length, color: 'info' },
+        { estado: 'Rechazadas', cantidad: cotizaciones.filter(c => c.estado === 'Rechazada').length, color: 'danger' }
+      ];
+
+      const tbody = document.getElementById('estadosDistribucion');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      distribucion.forEach(item => {
+        const porcentaje = totalCot > 0 ? ((item.cantidad / totalCot) * 100).toFixed(0) : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge bg-${item.color}">${item.estado}</span></td>
+          <td>${item.cantidad}</td>
+          <td>${porcentaje}%</td>
+          <td>
+            <div class="progress-bar-custom">
+              <div class="progress-fill bg-${item.color}" style="width: ${porcentaje}%"></div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderActividadReciente() {
+      const tbody = document.getElementById('actividadReciente');
+      tbody.innerHTML = '';
+      
+      actividades.slice(0, 10).forEach(actividad => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${actividad.hora}</td>
+          <td>${actividad.usuario}</td>
+          <td>${actividad.accion}</td>
+          <td>${actividad.descripcion}</td>
+          <td><span class="badge bg-${actividad.estado === 'Completado' ? 'success' : actividad.estado === 'En Proceso' ? 'warning' : 'secondary'}">${actividad.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderProveedores() {
+      const container = document.getElementById('proveedoresList');
+      container.innerHTML = '';
+
+      proveedores.forEach(proveedor => {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4 mb-3';
+        col.innerHTML = `
+          <div class="provider-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="mb-0">${proveedor.nombre}</h6>
+              <span class="badge bg-${proveedor.estado === 'Activo' ? 'success' : 'secondary'}">${proveedor.estado}</span>
+            </div>
+            <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> ${proveedor.ubicacion}</p>
+            <p class="text-muted mb-2"><i class="bi bi-tag"></i> ${proveedor.categoria}</p>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <i class="bi bi-star-fill text-warning"></i> ${proveedor.rating}
+              </div>
+              <small class="text-muted">${proveedor.tiempoEntrega} días entrega</small>
+            </div>
+            <p class="mb-2"><strong>Certificaciones:</strong> ${proveedor.certificaciones}</p>
+            <div class="btn-group w-100" role="group">
+              <button class="btn btn-outline-primary btn-sm" onclick="verProveedor(${proveedor.id})">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-success btn-sm" onclick="contactarProveedor(${proveedor.id})">
+                <i class="bi bi-chat"></i>
+              </button>
+              <button class="btn btn-outline-info btn-sm" onclick="evaluarProveedor(${proveedor.id})">
+                <i class="bi bi-star"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    function renderKanbanBoard() {
+      const columns = {
+        'Pendiente': document.getElementById('pendientes-column'),
+        'En Proceso': document.getElementById('proceso-column'),
+        'Aprobada': document.getElementById('aprobadas-column'),
+        'Rechazada': document.getElementById('rechazadas-column')
+      };
+
+      // Limpiar columnas
+      Object.values(columns).forEach(column => {
+        if (column) column.innerHTML = '';
+      });
+
+      cotizaciones.forEach(cotizacion => {
+        const card = document.createElement('div');
+        card.className = 'kanban-card';
+        card.draggable = true;
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="mb-0">${cotizacion.id}</h6>
+            ${cotizacion.urgente ? '<span class="badge bg-danger">Urgente</span>' : ''}
+          </div>
+          <p class="mb-1"><strong>${cotizacion.producto}</strong></p>
+          <p class="text-muted mb-2">${cotizacion.proveedor}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small>$${Number(cotizacion.precio).toLocaleString()}</small>
+            <small>${cotizacion.fecha.toLocaleDateString()}</small>
+          </div>
+        `;
+        
+        if (columns[cotizacion.estado]) {
+          columns[cotizacion.estado].appendChild(card);
+        }
+      });
+    }
+
+    function renderInventario() {
+      const tbody = document.getElementById('inventarioBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+
+      inventario.slice(0, 20).forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.codigo}</td>
+          <td>${item.nombre}</td>
+          <td>${item.categoria}</td>
+          <td>${item.stockActual}</td>
+          <td>${item.stockMinimo}</td>
+          <td>$${Number(item.precio).toLocaleString()}</td>
+          <td><span class="badge bg-${item.estado === 'OK' ? 'success' : item.estado === 'Revisar' ? 'warning' : 'danger'}">${item.estado}</span></td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="editarProducto('${item.codigo}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-info" onclick="verHistorial('${item.codigo}')">
+                <i class="bi bi-clock-history"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Inicializar DataTable si existe
+      try {
+        if ($.fn.DataTable && $.fn.DataTable.isDataTable('#inventarioTable')) {
+          $('#inventarioTable').DataTable().destroy();
+        }
+        if ($.fn.DataTable) {
+          $('#inventarioTable').DataTable({
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            responsive: true
+          });
+        }
+      } catch (error) {
+        console.log('DataTables no disponible:', error);
+      }
+    }
+
+    function renderOrdenes() {
+      const tbody = document.getElementById('ordenesBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+
+      ordenes.forEach(orden => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${orden.numero}</td>
+          <td>${orden.fecha.toLocaleDateString()}</td>
+          <td>${orden.proveedor}</td>
+          <td>$${Number(orden.total).toLocaleString()}</td>
+          <td><span class="badge bg-${getEstadoColor(orden.estado)}">${orden.estado}</span></td>
+          <td>${orden.entrega.toLocaleDateString()}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="verOrden('${orden.numero}')">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-success" onclick="seguirOrden('${orden.numero}')">
+                <i class="bi bi-truck"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAnalisisProveedores() {
+      const tbody = document.getElementById('analisisProveedores');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+
+      proveedores.slice(0, 10).forEach(proveedor => {
+        const cotizacionesProveedor = cotizaciones.filter(c => c.proveedor === proveedor.nombre).length;
+        const tiempoResp = (Math.random() * 5 + 1).toFixed(1);
+        const tasaAprobacion = (Math.random() * 30 + 70).toFixed(1);
+        const precioPromedio = (Math.random() * 5000 + 1000).toFixed(0);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${proveedor.nombre}</td>
+          <td>${cotizacionesProveedor}</td>
+          <td>${tiempoResp} hrs</td>
+          <td>${tasaAprobacion}%</td>
+          <td>$${Number(precioPromedio).toLocaleString()}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="me-2">${proveedor.rating}</span>
+              <div class="progress-bar-custom" style="width: 60px;">
+                <div class="progress-fill bg-warning" style="width: ${(proveedor.rating / 5) * 100}%"></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge bg-${proveedor.estado === 'Activo' ? 'success' : 'secondary'}">${proveedor.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Funciones auxiliares
+    function getEstadoColor(estado) {
+      const colores = {
+        'Pendiente': 'warning',
+        'Procesando': 'info',
+        'Enviado': 'primary',
+        'Entregado': 'success',
+        'Cancelado': 'danger'
+      };
+      return colores[estado] || 'secondary';
+    }
+
+    // Sistema de notificaciones
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+      const notificationPanel = document.getElementById('notificationPanel');
+      const notification = document.createElement('div');
+      notification.className = `notification alert alert-${tipo} alert-dismissible`;
+      notification.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      notificationPanel.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      generarDatosFicticios();
+      renderDashboard();
+      renderProveedores();
+      renderKanbanBoard();
+      renderInventario();
+      renderOrdenes();
+      renderAnalisisProveedores();
+      llenarSelectProveedores();
+
+      // Navegación
+      document.querySelectorAll('#menuLinks a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const targetId = this.getAttribute('data-target');
+          console.log('Navegando a:', targetId); // Para debug
+          
+          // Actualizar enlaces activos
+          document.querySelectorAll('#menuLinks a').forEach(a => a.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Ocultar todas las secciones
+          document.querySelectorAll('.content-pane').forEach(pane => {
+            pane.classList.remove('active');
+            pane.style.display = 'none';
+          });
+          
+          // Mostrar sección correspondiente
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            targetSection.classList.add('active');
+            targetSection.style.display = 'block';
+            
+            // Renderizar contenido específico de la sección
+            if (targetId === 'analytics') {
+              renderAnalisisProveedores();
+            } else if (targetId === 'inventario') {
+              renderInventario();
+            } else if (targetId === 'ordenes') {
+              renderOrdenes();
+            } else if (targetId === 'proveedores') {
+              renderProveedores();
+            } else if (targetId === 'cotizaciones') {
+              renderKanbanBoard();
+            }
+          } else {
+            console.error('Sección no encontrada:', targetId);
+          }
+          
+          return false;
+        });
+      });
+
+      // Modo oscuro
+      document.getElementById('toggleDark').addEventListener('click', function() {
+        document.documentElement.classList.toggle('dark-mode');
+        const icon = this.querySelector('i');
+        icon.classList.toggle('bi-moon');
+        icon.classList.toggle('bi-sun');
+        
+        mostrarNotificacion(
+          document.documentElement.classList.contains('dark-mode') ? 
+          'Modo oscuro activado' : 'Modo claro activado',
+          'info'
+        );
+      });
+
+      // Búsqueda global
+      document.getElementById('globalSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        buscarGlobal(searchTerm);
+      });
+
+      // Carrito
+      document.getElementById('viewCartBtn').addEventListener('click', function() {
+        mostrarCarrito();
+      });
+    });
+
+    // Funciones auxiliares
+    function llenarSelectProveedores() {
+      const select = document.getElementById('filtroProveedor');
+      if (select) {
+        proveedores.forEach(proveedor => {
+          const option = document.createElement('option');
+          option.value = proveedor.nombre;
+          option.textContent = proveedor.nombre;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    function buscarGlobal(termino) {
+      if (!termino) return;
+      
+      // Buscar en todas las secciones
+      const resultados = [];
+      
+      // Buscar en proveedores
+      proveedores.forEach(p => {
+        if (p.nombre.toLowerCase().includes(termino) || 
+            p.categoria.toLowerCase().includes(termino)) {
+          resultados.push({ tipo: 'Proveedor', nombre: p.nombre });
+        }
+      });
+      
+      // Buscar en cotizaciones
+      cotizaciones.forEach(c => {
+        if (c.id.toLowerCase().includes(termino) || 
+            c.producto.toLowerCase().includes(termino)) {
+          resultados.push({ tipo: 'Cotización', nombre: c.id });
+        }
+      });
+      
+      console.log('Resultados de búsqueda:', resultados);
+    }
+
+    function mostrarCarrito() {
+      const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+      modal.show();
+    }
+
+    // Funciones de acción principales
+    function refreshDashboard() {
+      mostrarNotificacion('Dashboard actualizado', 'success');
+      actualizarMetricas();
+      renderActividadReciente();
+    }
+
+    function exportDashboard() {
+      mostrarNotificacion('Exportando dashboard...', 'info');
+      // Simular exportación
+      setTimeout(() => {
+        mostrarNotificacion('Dashboard exportado exitosamente', 'success');
+      }, 2000);
+    }
+
+    function nuevaCotizacion() {
+      const modal = new bootstrap.Modal(document.getElementById('nuevaCotizacionModal'));
+      llenarSelectProveedoresModal();
+      modal.show();
+    }
+
+    function llenarSelectProveedoresModal() {
+      const select = document.getElementById('cotProveedor');
+      if (select) {
+        select.innerHTML = '<option value="">Seleccionar proveedor...</option>';
+        proveedores.filter(p => p.estado === 'Activo').forEach(proveedor => {
+          const option = document.createElement('option');
+          option.value = proveedor.id;
+          option.textContent = proveedor.nombre;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    function guardarCotizacion() {
+      const titulo = document.getElementById('cotTitulo').value;
+      const proveedor = document.getElementById('cotProveedor').value;
+      const producto = document.getElementById('cotProducto').value;
+      const cantidad = document.getElementById('cotCantidad').value;
+      const vencimiento = document.getElementById('cotVencimiento').value;
+      const descripcion = document.getElementById('cotDescripcion').value;
+      const urgente = document.getElementById('cotUrgente').checked;
+
+      if (!titulo || !proveedor || !producto || !cantidad || !vencimiento) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos',
+          text: 'Por favor complete todos los campos obligatorios'
+        });
+        return;
+      }
+
+      // Crear nueva cotización
+      const nuevaCot = {
+        id: `COT-${2025}${String(cotizaciones.length + 1).padStart(4, '0')}`,
+        fecha: new Date(),
+        proveedor: proveedores.find(p => p.id == proveedor)?.nombre || 'Proveedor',
+        producto: producto,
+        cantidad: parseInt(cantidad),
+        precio: (Math.random() * 5000 + 1000).toFixed(2),
+        estado: 'Pendiente',
+        urgente: urgente,
+        vencimiento: new Date(vencimiento),
+        descripcion: descripcion
+      };
+
+      cotizaciones.push(nuevaCot);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Cotización creada',
+        text: `Cotización ${nuevaCot.id} creada exitosamente`
+      });
+
+      // Cerrar modal y actualizar vista
+      bootstrap.Modal.getInstance(document.getElementById('nuevaCotizacionModal')).hide();
+      renderKanbanBoard();
+      actualizarMetricas();
+      
+      // Limpiar formulario
+      document.getElementById('formNuevaCotizacion').reset();
+    }
+
+    function importarCotizaciones() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.xlsx,.csv';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          mostrarNotificacion(`Importando archivo: ${file.name}`, 'info');
+          setTimeout(() => {
+            mostrarNotificacion('Archivo importado exitosamente', 'success');
+            renderKanbanBoard();
+          }, 2000);
+        }
+      };
+      input.click();
+    }
+
+    function nuevoProveedor() {
+      const modal = new bootstrap.Modal(document.getElementById('nuevoProveedorModal'));
+      modal.show();
+    }
+
+    function guardarProveedor() {
+      const nombre = document.getElementById('provNombre').value;
+      const categoria = document.getElementById('provCategoria').value;
+      const email = document.getElementById('provEmail').value;
+      const telefono = document.getElementById('provTelefono').value;
+      const direccion = document.getElementById('provDireccion').value;
+      const ciudad = document.getElementById('provCiudad').value;
+      const cuit = document.getElementById('provCuit').value;
+      const certificaciones = document.getElementById('provCertificaciones').value;
+
+      if (!nombre || !categoria || !email || !telefono) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos',
+          text: 'Por favor complete los campos obligatorios'
+        });
+        return;
+      }
+
+      // Crear nuevo proveedor
+      const nuevoProveedor = {
+        id: proveedores.length + 1,
+        nombre: nombre,
+        categoria: categoria,
+        ubicacion: ciudad,
+        rating: (Math.random() * 2 + 3).toFixed(1),
+        certificaciones: certificaciones,
+        tiempoEntrega: Math.floor(Math.random() * 10 + 1),
+        estado: 'Activo',
+        email: email,
+        telefono: telefono,
+        direccion: direccion,
+        cuit: cuit
+      };
+
+      proveedores.push(nuevoProveedor);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Proveedor registrado',
+        text: `${nombre} ha sido registrado exitosamente`
+      });
+
+      // Cerrar modal y actualizar vista
+      bootstrap.Modal.getInstance(document.getElementById('nuevoProveedorModal')).hide();
+      renderProveedores();
+      llenarSelectProveedores();
+      
+      // Limpiar formulario
+      document.getElementById('formNuevoProveedor').reset();
+    }
+
+    function aplicarFiltros() {
+      const estado = document.getElementById('filtroEstado').value;
+      const proveedor = document.getElementById('filtroProveedor').value;
+      const fechaDesde = document.getElementById('filtroFechaDesde').value;
+      const fechaHasta = document.getElementById('filtroFechaHasta').value;
+
+      mostrarNotificacion('Aplicando filtros...', 'info');
+      
+      // Filtrar cotizaciones
+      let cotizacionesFiltradas = cotizaciones;
+      
+      if (estado) {
+        cotizacionesFiltradas = cotizacionesFiltradas.filter(c => c.estado === estado);
+      }
+      
+      if (proveedor) {
+        cotizacionesFiltradas = cotizacionesFiltradas.filter(c => c.proveedor === proveedor);
+      }
+      
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        cotizacionesFiltradas = cotizacionesFiltradas.filter(c => c.fecha >= desde);
+      }
+      
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        cotizacionesFiltradas = cotizacionesFiltradas.filter(c => c.fecha <= hasta);
+      }
+
+      // Actualizar vista Kanban con filtros
+      renderKanbanBoardFiltrado(cotizacionesFiltradas);
+      
+      mostrarNotificacion(`${cotizacionesFiltradas.length} cotizaciones encontradas`, 'success');
+    }
+
+    function renderKanbanBoardFiltrado(cotizacionesFiltradas) {
+      const columns = {
+        'Pendiente': document.getElementById('pendientes-column'),
+        'En Proceso': document.getElementById('proceso-column'),
+        'Aprobada': document.getElementById('aprobadas-column'),
+        'Rechazada': document.getElementById('rechazadas-column')
+      };
+
+      // Limpiar columnas
+      Object.values(columns).forEach(column => {
+        if (column) column.innerHTML = '';
+      });
+
+      cotizacionesFiltradas.forEach(cotizacion => {
+        const card = document.createElement('div');
+        card.className = 'kanban-card';
+        card.draggable = true;
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="mb-0">${cotizacion.id}</h6>
+            ${cotizacion.urgente ? '<span class="badge bg-danger">Urgente</span>' : ''}
+          </div>
+          <p class="mb-1"><strong>${cotizacion.producto}</strong></p>
+          <p class="text-muted mb-2">${cotizacion.proveedor}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small>$${Number(cotizacion.precio).toLocaleString()}</small>
+            <small>${cotizacion.fecha.toLocaleDateString()}</small>
+          </div>
+        `;
+        
+        if (columns[cotizacion.estado]) {
+          columns[cotizacion.estado].appendChild(card);
+        }
+      });
+    }
+
+    function alertasStock() {
+      const productosStockBajo = inventario.filter(item => item.estado === 'Stock Bajo');
+      
+      Swal.fire({
+        icon: 'warning',
+        title: 'Alertas de Stock',
+        html: `
+          <div class="text-start">
+            <p><strong>${productosStockBajo.length}</strong> productos con stock bajo:</p>
+            <ul class="list-unstyled">
+              ${productosStockBajo.slice(0, 5).map(item => 
+                `<li class="mb-1">
+                  <span class="badge bg-danger me-2">${item.codigo}</span>
+                  ${item.nombre} (${item.stockActual} unidades)
+                </li>`
+              ).join('')}
+              ${productosStockBajo.length > 5 ? `<li class="text-muted">... y ${productosStockBajo.length - 5} más</li>` : ''}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: 'Ver Inventario'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Cambiar a sección inventario
+          document.querySelector('[data-target="inventario"]').click();
+        }
+      });
+    }
+
+    function planificarDemanda() {
+      mostrarNotificacion('Analizando demanda...', 'info');
+      
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'info',
+          title: 'Planificación de Demanda',
+          html: `
+            <div class="text-start">
+              <h6>Recomendaciones para los próximos 30 días:</h6>
+              <ul class="list-unstyled mt-3">
+                <li class="mb-2"><i class="bi bi-arrow-up text-success"></i> Aumentar stock de Jeringas (+200%)</li>
+                <li class="mb-2"><i class="bi bi-arrow-up text-warning"></i> Reabastecer Mascarillas N95 (+150%)</li>
+                <li class="mb-2"><i class="bi bi-arrow-down text-info"></i> Reducir pedidos de Gasas (-50%)</li>
+                <li class="mb-2"><i class="bi bi-check text-success"></i> Mantener nivel actual de Alcohol Gel</li>
+              </ul>
+              <small class="text-muted">Basado en tendencias de los últimos 6 meses</small>
+            </div>
+          `,
+          confirmButtonText: 'Generar Órdenes Automáticas'
+        });
+      }, 1500);
+    }
+
+    function actualizarAnalytics() {
+      mostrarNotificacion('Actualizando análisis...', 'info');
+      renderAnalisisProveedores();
+      setTimeout(() => {
+        mostrarNotificacion('Analytics actualizado', 'success');
+      }, 1000);
+    }
+
+    function exportarAnalytics() {
+      mostrarNotificacion('Exportando análisis...', 'info');
+      
+      // Simular exportación
+      setTimeout(() => {
+        const data = proveedores.map(p => ({
+          Proveedor: p.nombre,
+          Categoria: p.categoria,
+          Rating: p.rating,
+          'Tiempo Entrega': `${p.tiempoEntrega} días`,
+          Estado: p.estado
+        }));
+        
+        console.log('Datos exportados:', data);
+        mostrarNotificacion('Análisis exportado a Excel', 'success');
+      }, 2000);
+    }
+
+    function confirmarPedido() {
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido Confirmado',
+        text: 'Su pedido ha sido enviado a los proveedores seleccionados',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      // Limpiar carrito
+      document.getElementById('cartCount').textContent = '0';
+      bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+    }
+
+    function sendWhatsApp() {
+      window.open('https://wa.me/54911234567?text=Hola, necesito soporte con el sistema ARSOF', '_blank');
+    }
+
+    function sendEmail() {
+      window.location.href = 'mailto:soporte@arsof.com.ar?subject=Consulta sobre sistema&body=Hola, tengo una consulta sobre el sistema...';
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Funciones específicas de cada módulo
+    function verProveedor(id) {
+      mostrarNotificacion(`Mostrando detalles del proveedor ${id}`, 'info');
+    }
+
+    function contactarProveedor(id) {
+      mostrarNotificacion(`Contactando proveedor ${id}`, 'info');
+    }
+
+    function evaluarProveedor(id) {
+      mostrarNotificacion(`Evaluando proveedor ${id}`, 'info');
+    }
+
+    function editarProducto(codigo) {
+      mostrarNotificacion(`Editando producto ${codigo}`, 'info');
+    }
+
+    function verHistorial(codigo) {
+      mostrarNotificacion(`Mostrando historial del producto ${codigo}`, 'info');
+    }
+
+    function verOrden(numero) {
+      mostrarNotificacion(`Mostrando detalles de la orden ${numero}`, 'info');
+    }
+
+    function seguirOrden(numero) {
+      mostrarNotificacion(`Siguiendo orden ${numero}`, 'info');
+    }
+
+    // Inicializar cuando se carga la página
+    window.addEventListener('load', function() {
+      mostrarNotificacion('Sistema ARSOF cargado correctamente', 'success');
+    });
+  </script>
+</body>
+</html>

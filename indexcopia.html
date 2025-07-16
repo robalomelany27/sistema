@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARSOF Demo Completo - ARSOF SOFTWARE</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { background-color: #f0f2f5; transition: background .3s, color .3s; }
+    .dark-mode body { background-color: #2c2c2c; color: #ddd; }
+    .banner { background-color: #004080; color: #fff; padding: 1rem; text-align: center; }
+    .sidebar { background-color: #0277bd; color: #fff; min-height: calc(100vh - 160px); padding-top: 1rem; transition: background .3s; }
+    .dark-mode .sidebar { background-color: #01314d; }
+    .sidebar a { color: #fff; padding: .75rem 1rem; display: block; text-decoration: none; }
+    .sidebar a:hover, .sidebar a.active { background-color: #015a8c; }
+    .topbar { background-color: #fff; border-bottom: 1px solid #dee2e6; padding: .75rem 1rem; transition: background .3s, border-color .3s; }
+    .dark-mode .topbar { background-color: #1f1f1f; border-color: #444; }
+    .content-pane { display: none; }
+    .content-pane.active { display: block; }
+    .info-box, .card-prod, .table, .list-group-item { background: #fff; transition: background .3s, color .3s; }
+    .dark-mode .info-box, .dark-mode .card-prod, .dark-mode .table, .dark-mode .list-group-item { background: #3a3a3a; color: #ddd; }
+    footer { background-color: #004080; color: #fff; padding: 1rem; text-align: center; }
+    .btn-whatsapp { color: #25d366; }
+    .btn-email { color: #0d6efd; }
+  </style>
+</head>
+<body>
+  <!-- Banner -->
+  <div class="banner">
+    <h1>ARSOF SOFTWARE</h1>
+    <p>Sistemas de Gestión y Cotizaciones Integradas</p>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-2 sidebar">
+        <h5 class="text-center">ARSOF</h5>
+        <div id="menuLinks">
+          <a href="#" data-target="dashboard" class="active">Dashboard</a>
+          <a href="#" data-target="transacciones">Transacciones</a>
+          <a href="#" data-target="operaciones">Operaciones</a>
+          <a href="#" data-target="consultas">Consultas</a>
+          <a href="#" data-target="contratos">Contratos</a>
+          <a href="#" data-target="informes">Informes</a>
+          <a href="#" data-target="documentacion">Documentación</a>
+          <a href="#" data-target="manual">Manual & FAQ</a>
+        </div>
+      </nav>
+      <!-- Main Content -->
+      <main class="col-md-10 px-0">
+        <!-- Top bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleFilters()"><i class="bi bi-funnel"></i></button>
+            <input type="text" id="globalSearch" class="form-control d-inline-block w-25" placeholder="Buscar...">
+          </div>
+          <div>
+            <button id="toggleDark" class="btn btn-outline-dark btn-sm me-2"><i class="bi bi-moon"></i></button>
+            <button id="viewCartBtn" class="btn btn-outline-success btn-sm me-2"><i class="bi bi-cart3"></i> (<span id="cartCount">0</span>)</button>
+            <button class="btn-whatsapp btn-sm me-1" onclick="sendWhatsApp()"><i class="bi bi-whatsapp"></i></button>
+            <button class="btn-email btn-sm" onclick="sendEmail()"><i class="bi bi-envelope-fill"></i></button>
+          </div>
+        </div>
+        <div id="contentArea" class="p-4">
+          <!-- Dashboard -->
+          <section id="dashboard" class="content-pane active">
+            <h2>Panel de Métricas</h2>
+            <div class="row gy-4">
+              <div class="col-md-4"><canvas id="chartStatus"></canvas></div>
+              <div class="col-md-4"><canvas id="chartResponse"></canvas></div>
+              <div class="col-md-4"><canvas id="chartCategories"></canvas></div>
+            </div>
+          </section>
+          <!-- Transacciones -->
+          <section id="transacciones" class="content-pane">
+            <h2>Transacciones</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6>Pedido de Cotización On-Line</h6>
+              <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+            </div>
+            <div class="info-box">
+              <div class="row text-center">
+                <div class="col"><strong>#12345647</strong><br><small>Cotización de urgencia</small></div>
+                <div class="col"><strong>MEDICAMENTOS URGENTES HPTU 25 DE ENERO</strong></div>
+              </div>
+            </div>
+            <div id="filtersPane" class="mb-3">
+              <button class="btn btn-outline-primary btn-sm me-1" onclick="filterStatus('Todas')">Todas</button>
+              <button class="btn btn-outline-success btn-sm me-1" onclick="filterStatus('Respondidas')">Respondidas</button>
+              <button class="btn btn-outline-warning btn-sm me-1" onclick="filterStatus('En negociación')">En negociación</button>
+              <button class="btn btn-outline-danger btn-sm me-1" onclick="filterStatus('No respondidas')">No respondidas</button>
+              <button class="btn btn-outline-info btn-sm" onclick="filterStatus('Urgentes')">Urgentes</button>
+            </div>
+            <div class="row" id="providersList"></div>
+          </section>
+          <!-- Operaciones -->
+          <section id="operaciones" class="content-pane">
+            <h2>Operaciones</h2>
+            <input type="file" id="fileUpload" accept=".csv, .xlsx" class="form-control mb-3">
+            <div id="uploadResult"></div>
+            <div class="row g-3" id="opsList"></div>
+          </section>
+          <!-- Consultas -->
+          <section id="consultas" class="content-pane">
+            <h2>Consultas</h2>
+            <table class="table table-striped">
+              <thead><tr><th>ID</th><th>Fecha</th><th>Usuario</th><th>Descripción</th><th>Estado</th></tr></thead>
+              <tbody id="consultasBody"></tbody>
+            </table>
+          </section>
+          <!-- Contratos -->
+          <section id="contratos" class="content-pane">
+            <h2>Contratos</h2>
+            <div class="list-group" id="contratosList"></div>
+          </section>
+          <!-- Informes -->
+          <section id="informes" class="content-pane">
+            <h2>Informes</h2>
+            <form class="row gy-2 gx-3 align-items-center mb-4">
+              <div class="col-auto"><select id="reportType" class="form-select"><option value="cot">Cotizaciones</option><option value="ventas">Ventas</option><option value="cons">Consultas</option></select></div>
+              <div class="col-auto"><input id="repFrom" type="date" class="form-control"></div>
+              <div class="col-auto"><input id="repTo" type="date" class="form-control"></div>
+              <div class="col-auto"><button class="btn btn-success">Generar Informe</button></div>
+            </form>
+            <div class="table-responsive"><table class="table table-bordered"><thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Total $</th></tr></thead><tbody id="informesBody"></tbody></table></div>
+          </section>
+          <!-- Documentación -->
+          <section id="documentacion" class="content-pane">
+            <h2>Documentación</h2>
+            <ul class="list-group">
+              <li class="list-group-item"><i class="bi bi-file-earmark-text"></i> API & Endpoints</li>
+              <li class="list-group-item"><i class="bi bi-file-earmark-word"></i> Términos y Condiciones</li>
+              <li class="list-group-item"><i class="bi bi-gear-fill"></i> Guía de Integración</li>
+            </ul>
+          </section>
+          <!-- Manual & FAQ -->
+          <section id="manual" class="content-pane">
+            <h2>Manual de Usuario</h2>
+            <p>Este manual describe el uso de la plataforma de cotizaciones Bionexo. Incluye configuración y navegación.</p>
+            <h3>FAQ</h3>
+            <div class="accordion" id="faqAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="faq1-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">¿Cómo filtro cotizaciones?</button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">Usa los botones de estado o la búsqueda.</div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="faq2-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">¿Cómo imprimo pedido?</button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">Haz click en el ícono de impresora.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <footer>&copy; 2025 ARSOF SOFTWARE - Todos los derechos reservados | www.arsof.com.ar</footer>
+
+  <!-- Carrito Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Carrito de Compras</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="cartBody">No hay productos en el carrito.</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-success">Confirmar Pedido</button></div></div></div></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Roles & permisos
+    const userRole = 'comprador';
+    function enforceRoles(){ if(userRole==='comprador'){ /* ninguna sección oculta */ }}
+    // Datos ficticios
+    const providers=[]; for(let i=1;i<=12;i++) providers.push({id:i,name:`Proveedor ${i}`,loc:`Ciudad ${i}`,price:(Math.random()*1000).toFixed(2),unit:'Unidade',status:['Respondidas','No respondidas','En negociación','Urgentes'][i%4]});
+    const ops=[]; for(let i=1;i<=10;i++) ops.push({name:`Producto OP${i}`,code:`OP${100+i}`,fab:`FAB${i}`,price:(Math.random()*500).toFixed(2)});
+    const consultas=[]; for(let i=1;i<=10;i++) consultas.push({id:2000+i,date:`0${i}/06/2025`,user:`user${i}`,desc:`Consulta ${i}`,status:['Completado','Pendiente','En Proceso'][i%3]});
+    const contratos=[]; for(let i=1;i<=10;i++) contratos.push(`Contrato 2025-00${i} | Cliente ${i} | Válido ${(30-i)}/12/2026`);
+    const informes=[]; ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct'].forEach((m,i)=>informes.push({date:`${m} 2025`,type:['Cotizaciones','Ventas','Consultas'][i%3],count:Math.floor(Math.random()*200),total:(Math.random()*100000).toFixed(2)}));
+    // Render
+    function renderProviders(){const c=document.getElementById('providersList');c.innerHTML='';providers.forEach(p=>{let col=document.createElement('div');col.className='col-md-6';col.innerHTML=`<div class="card-prod" data-status="${p.status}"><div class="d-flex justify-content-between"><h6>${p.name}</h6><div><i class="bi bi-whatsapp btn-whatsapp" onclick="sendWhatsApp(${p.id})"></i> <i class="bi bi-envelope-fill btn-email" onclick="sendEmail('${p.name}')"></i> <i class="bi bi-printer" onclick="window.print()"></i></div></div><small>${p.loc}</small><hr><p><strong>Precio Unitario:</strong> $ ${p.price}</p><p><strong>Unidad:</strong> ${p.unit}</p><div class="d-flex align-items-center"><input type="number" class="form-control form-control-sm w-25 me-2 qty-input" value="1"><button class="btn btn-sm btn-success btn-add-cart">Añadir</button></div></div>`;c.appendChild(col);});applyFilters();}
+    function renderOps(){const c=document.getElementById('opsList');c.innerHTML='';ops.forEach(o=>{let col=document.createElement('div');col.className='col-md-4';col.innerHTML=`<div class="card-prod"><h5>${o.name}</h5><p>Código: ${o.code}</p><p>Fab: ${o.fab}</p><p><strong>Precio:</strong> $ ${o.price}</p><span class="badge bg-success">Activo</span></div>`;c.appendChild(col);});}
+    function renderConsultas(){const b=document.getElementById('consultasBody');b.innerHTML='';consultas.forEach(q=>{b.innerHTML+=`<tr><td>${q.id}</td><td>${q.date}</td><td>${q.user}</td><td>${q.desc}</td><td><span class="badge bg-${q.status==='Completado'?'primary':q.status==='Pendiente'?'warning':'info'}">${q.status}</span></td></tr>`;});}
+    function renderContratos(){const c=document.getElementById('contratosList');c.innerHTML='';contratos.forEach(ct=>{let a=document.createElement('a');a.href='#';a.className='list-group-item list-group-item-action';a.innerText=ct;c.appendChild(a);});}
+    function renderInformes(){const b=document.getElementById('informesBody');b.innerHTML='';informes.forEach(i=>{b.innerHTML+=`<tr><td>${i.date}</td><td>${i.type}</td><td>${i.count}</td><td>$ ${Number(i.total).toLocaleString('es-AR',{minimumFractionDigits:2})}</td></tr>`;});}
+    // Dashboard
+    function renderDashboard(){new Chart(document.getElementById('chartStatus'),{type:'pie',data:{labels:['Abiertas','Cerradas'],datasets:[{data:[65,35],backgroundColor:['#198754','#dc3545']}]}});new Chart(document.getElementById('chartResponse'),{type:'bar',data:{labels:['Prov1','Prov2','Prov3'],datasets:[{label:'tiempo (hrs)',data:[4,6,3]}]}});new Chart(document.getElementById('chartCategories'),{type:'doughnut',data:{labels:['Medicamentos','Insumos','Equipos','Materiales','Varios'],datasets:[{data:[30,25,20,15,10]}]}});}    
+    // Actions
+    function sendWhatsApp(id){window.open(`https://wa.me/54911234567?text=Hola%20Proveedor%20${id},%20recordatorio%20de%20cotización`,'_blank');}
+    function sendEmail(name){window.location.href=`mailto:${name.replace(/\s+/g,'').toLowerCase()}@arsof.com.ar?subject=Recordatorio&body=Hola%20${encodeURIComponent(name)}`;}
+    // Events
+    document.getElementById('globalSearch').addEventListener('input',e=>{const t=e.target.value.toLowerCase();document.querySelectorAll('.card-prod').forEach(c=>{c.parentElement.style.display=c.innerText.toLowerCase().includes(t)?'block':'none';});});
+    document.getElementById('toggleDark').addEventListener('click',()=>{document.documentElement.classList.toggle('dark-mode');});
+    document.getElementById('fileUpload').addEventListener('change',e=>{const f=e.target.files[0],r=new FileReader();r.onload=ev=>{const wb=XLSX.read(ev.target.result,{type:'binary'}),data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);document.getElementById('uploadResult').innerHTML='<pre>'+JSON.stringify(data,null,2)+'</pre>';};r.readAsBinaryString(f);});
+    let cart=[];document.addEventListener('click',e=>{if(e.target.classList.contains('btn-add-cart')){const c=e.target.closest('.card-prod'),n=c.querySelector('h6').innerText,q=+c.querySelector('.qty-input').value;cart.push({name:n,qty:q});document.getElementById('cartCount').innerText=cart.length;}if(e.target.id==='viewCartBtn'){const b=document.getElementById('cartBody');b.innerHTML=cart.length?cart.map((i,idx)=>`${idx+1}. ${i.name} x ${i.qty}`).join('<br>'):'No hay productos en el carrito.';new bootstrap.Modal(document.getElementById('cartModal')).show();}});
+    function filterStatus(status){document.querySelectorAll('.card-prod').forEach(c=>{c.parentElement.style.display=(status==='Todas'||c.dataset.status===status)?'block':'none';});}
+    function applyFilters(){filterStatus('Todas');}
+    document.querySelectorAll('#menuLinks a').forEach(l=>l.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('#menuLinks a').forEach(a=>a.classList.remove('active'));l.classList.add('active');document.querySelectorAll('.content-pane').forEach(p=>p.classList.remove('active'));document.getElementById(l.dataset.target).classList.add('active');}));
+    // Init
+    enforceRoles();renderDashboard();renderProviders();renderOps();renderConsultas();renderContratos();renderInformes();
+  </script>
+</body>
+</html>
